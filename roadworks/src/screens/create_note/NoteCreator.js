@@ -1,19 +1,21 @@
 import * as React from 'react';
-import { ScrollView, TouchableOpacity, Image, StyleSheet, Text, TextInput, Button } from 'react-native';
+import { ScrollView, TouchableOpacity, StyleSheet, Text, TextInput } from 'react-native';
 import Crumb from './Crumb';
 import CrumbSelector from './CrumbSelector'
 import { writeNote, updateNote } from '../../database/NoteDatabse';
+import { Icon } from 'react-native-elements';
+
 
 export default function NoteCreator(props){
-    console.log(props.route);
-    const [id, setId] = React.useState(props.route.params ? props.route.params.id : 0);
+    const [id, setId] = React.useState(props.route.params ? props.route.params.index : undefined);
     const [title, setTitle] = React.useState(props.route.params ? props.route.params.title : "");
     const [description, setDescription] = React.useState(props.route.params ? props.route.params.description : "");
     const [level, setLevelChange] = React.useState(props.route.params ? props.route.params.urgency : undefined);
 
-    let option = props.route.params ? writeNote : updateNote;
+    let option = props.route.params === undefined ? writeNote : updateNote;
 
-    let saveNote = () => {
+    const saveNote = () => {
+        console.log(id);
         if(title.toString() !== "" && description.toString() !== "" && level !== undefined){
             option({
                 title: title,
@@ -22,7 +24,7 @@ export default function NoteCreator(props){
                 id: id
             })
                 .then(res => {
-                    props.navigation.navigate('Home');
+                    props.navigation.navigate('NoteList');
                 })
                 .catch(err => {
                     alert('Error creating note');
@@ -34,11 +36,19 @@ export default function NoteCreator(props){
         }
     };
 
+    const deleteNote = () => {
+
+    }
+    ;
+
     props.navigation.setOptions({
         headerRight: () => (
             <TouchableOpacity style={style.headerButton} onPress={saveNote}>
-                <Image></Image>
-                <Text>Save</Text>
+                <Icon
+                    type="material"
+                    name="save"
+                    size={24}
+                />
             </TouchableOpacity>
         )
     });

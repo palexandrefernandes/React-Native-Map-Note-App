@@ -1,13 +1,27 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-//import { Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 
 export default function Note(props) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>{props.title}</Text>
+                <TouchableOpacity onPress={props.deleteNote}>
+                    <Icon
+                        name='delete'
+                        type='material'
+                        size={20}
+                        raised
+                    />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={props.editNote}>
+                    <Icon
+                        name='create'
+                        type='material'
+                        size={20}
+                        raised
+                    />
                 </TouchableOpacity>
             </View>
             <View>
@@ -41,6 +55,7 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         backgroundColor: '#FFF',
         padding: 10,
+        paddingHorizontal: 20,
         borderRadius: 2,
         shadowColor: "#000",
         shadowOffset: {
@@ -49,15 +64,19 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.1,
         shadowRadius: 6.27,
-
         elevation: 10
     },
     header: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomColor: '#EEE',
+        borderBottomWidth: 1,
+        paddingVertical: 5,
+        marginBottom: 10
     },
     title: {
         flex: 9,
-        fontSize: 20
+        fontSize: 20,
     },
     optionButton:{
       flex: 1  
