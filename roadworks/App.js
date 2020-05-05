@@ -4,9 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import NoteList from './src/screens/notes/ListNotes';
 import NoteCreator from './src/screens/create_note/NoteCreator';
-import Login from './src/screens/login/login';
+import Login from './src/screens/login/Login';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
 export const AuthContext = React.createContext();
 
 function App() {
@@ -31,11 +34,17 @@ function App() {
 
   const authContext = React.useMemo(() => ({
     signIn: (username, password) => {
-      console.log('hey');
-      dispatch({type: 'SIGN_IN', token: null});
+      if(username && password)
+        dispatch({type: 'SIGN_IN', token: 'dummy'});
+      else
+        dispatch({type: 'SIGN_IN', token: null});
     },
     signOut: () => {
       dispatch({type: 'SIGN_OUT'});
+    },
+    getToken: () => {
+      if(state.isLoggedIn)
+        return state.token;
     }
   }), []);
 

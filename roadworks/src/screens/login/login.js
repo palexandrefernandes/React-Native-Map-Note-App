@@ -20,7 +20,7 @@ import {AuthContext} from '../../../App';
                 <TextInput style={style.input} autoCompleteType="password" secureTextEntry onChangeText={(text) => setPassword(text)}></TextInput>
             </View>
             <View>
-                <Button title="Login"/>
+                <Button title="Login" onPress={() => signIn(email, password)}/>
                 <TouchableOpacity onPress={() => signIn()}>
                     <Text style={{textAlign: "center", marginTop: 20, color: '#444'}}>Skip Login</Text>
                 </TouchableOpacity>
