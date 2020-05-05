@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Crumb } from './Crumb'
 
 export default function CrumbSelector(props){
-    const [selectedCrumb, setSelectedCrumb] = React.useState();
+    const [selectedCrumb, setSelectedCrumb] = React.useState(props.defaultIndex);
     const elements = [];
     
     React.Children.map(props.children, (child, index) => {

@@ -5,23 +5,28 @@ import * as NoteDatabase from '../../database/NoteDatabse';
 
 export default function ListNotes(props) {
     const [notes, setNotes] = React.useState([]);
-    
-    React.useEffect(() => {
-        
+
+    const loadNotes = () => {
         NoteDatabase.readNotes()
         .then(n => {
             setNotes(n);
         })
         .catch(error => {
             setNotes([]);
-            console.log(error);
         });
-        
+    };
+
+    NoteDatabase.RealmDB.addListener('change', () => {
+        loadNotes();
+    });
+    
+    React.useEffect(() => {
+        loadNotes();
     }, []);
 
     props.navigation.setOptions({
         headerRight: () => (
-            <TouchableOpacity style={styles.headerButton} onPress={() => alert('test')}>
+            <TouchableOpacity style={styles.headerButton} onPress={() => props.navigation.navigate('Note Creator')}>
                 <Image></Image>
                 <Text>Press Here</Text>
             </TouchableOpacity>
@@ -29,7 +34,7 @@ export default function ListNotes(props) {
     });
 
     return (
-        <FlatList data={notes} renderItem={({item}) => <Note  title={item.title} description={item.description} urgency={item.urgency}/>} keyExtractor={item => item.id.toString()}/>
+        <FlatList data={notes} renderItem={({item}) => <Note editNote={() => props.navigation.navigate('Note Creator', {id: item.id, title: item.title, description: item.description, urgency: item.urgency})}  title={item.title} description={item.description} urgency={item.urgency}/>} keyExtractor={item => item.id.toString()}/>
     );
 }
 

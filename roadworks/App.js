@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import NoteList from './src/screens/notes/ListNotes';
-import NoteCreator from './src/screens/noteform/NoteCreator';
+import NoteCreator from './src/screens/create_note/NoteCreator';
 
 function HomeScreen() {
   return (
@@ -19,8 +19,8 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={NoteList} />
         <Stack.Screen name="Note Creator" component={NoteCreator} />
+        <Stack.Screen name="Home" component={NoteList} />
       </Stack.Navigator>
     </NavigationContainer>
   );

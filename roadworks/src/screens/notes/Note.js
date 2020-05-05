@@ -1,11 +1,14 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+//import { Icon } from 'react-native-elements';
 
 export default function Note(props) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>{props.title}</Text>
+                <TouchableOpacity onPress={props.editNote}>
+                </TouchableOpacity>
             </View>
             <View>
                 <Text>{props.description}</Text>
@@ -19,8 +22,8 @@ function Tagline(props){
     let color;
     let message;
     switch(props.state){
-        case 0: message= "Urgent"; color = Colors.DANGER; break;
-        case 1: message= "Caution"; color = Colors.WARNING; break;
+        case 2: message= "Urgent"; color = Colors.DANGER; break;
+        case 1: message= "Atention"; color = Colors.WARNING; break;
         default: message= "Normal"; color = Colors.NORMAL; break;
     }
 
@@ -55,6 +58,9 @@ const styles = StyleSheet.create({
     title: {
         flex: 9,
         fontSize: 20
+    },
+    optionButton:{
+      flex: 1  
     },
     edit: {
         flex: 1
