@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, StyleSheet, Button, TouchableOpacity, Text, TextInput } from 'react-native';
-import {AuthContext} from '../../../App';
+import {AuthContext} from '../../authentication/AuthProvider';
 
 
  export default function Login({navigation}) {

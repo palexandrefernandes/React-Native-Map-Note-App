@@ -3,7 +3,7 @@ import { TouchableOpacity, Image, StyleSheet, FlatList, BackHandler } from 'reac
 import Note from './Note';
 import * as NoteDatabase from '../../database/NoteDatabse';
 import {Icon} from 'react-native-elements';
-import { AuthContext } from '../../../App';
+import { AuthContext } from '../../authentication/AuthProvider';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function ListNotes(props) {

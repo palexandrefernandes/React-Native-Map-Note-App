@@ -6,51 +6,16 @@ import NoteList from './src/screens/notes/ListNotes';
 import NoteCreator from './src/screens/create_note/NoteCreator';
 import Login from './src/screens/login/Login';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { AuthComponent } from './src/authentication/AuthProvider';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-export const AuthContext = React.createContext();
-
 function App() {
-  const [state, dispatch] = React.useReducer((prevState, action) => {
-    switch(action.type){
-      case 'SIGN_IN': 
-        return {
-          ...prevState,
-          token: action.token,
-          isLoggedIn: true
-        }
-      case 'SIGN_OUT': 
-        return {
-          ...state,
-          isLoggedIn: false,
-          token: null
-        }
-      default:
-        return prevState;
-    }
-  }, {isLoggedIn: false, token: null})
-
-  const authContext = React.useMemo(() => ({
-    signIn: (username, password) => {
-      if(username && password)
-        dispatch({type: 'SIGN_IN', token: 'dummy'});
-      else
-        dispatch({type: 'SIGN_IN', token: null});
-    },
-    signOut: () => {
-      dispatch({type: 'SIGN_OUT'});
-    },
-    getToken: () => {
-      if(state.isLoggedIn)
-        return state.token;
-    }
-  }), []);
-
+  const [ state, setState ] = React.useState({})
 
   return (
-    <AuthContext.Provider value={authContext}>
+    <AuthComponent state={setState}>
       <NavigationContainer>
         <Stack.Navigator>
           {!state.isLoggedIn ? (
@@ -65,7 +30,8 @@ function App() {
             )}
         </Stack.Navigator>
       </NavigationContainer>
-    </AuthContext.Provider>
+    </AuthComponent>
+    
   );
 }
 

@@ -1,33 +1,36 @@
 import * as React from 'react';
 
 export const AuthContext = React.createContext();
-export let currentState = {isLoggedIn: false, token: null};
 
 export function AuthComponent(props){
     const [state, dispatch] = React.useReducer((prevState, action) => {
+        let cState = {};
         switch(action.type){
           case 'SIGN_IN': 
-            currentState = {
+            cState = {
               ...prevState,
               token: action.token,
               isLoggedIn: true
             };
-            return currentState;
+            props.state(cState);
+            return state;
           case 'SIGN_OUT': 
-            currentState = {
-              ...prevstate,
+            cState = {
+              ...prevState,
               isLoggedIn: false,
               token: null
             };
-            return currentState;
+            props.state(cState);
+            return state;
           default:
+            props.state(prevState);
             return prevState;
         }
       }, {isLoggedIn: false, token: null})
     
       const authContext = React.useMemo(() => ({
         signIn: (username, password) => {
-            console.log('Sign In');
+            console.log('Sign In')
           if(username && password)
             dispatch({type: 'SIGN_IN', token: 'dummy'});
           else
@@ -36,9 +39,8 @@ export function AuthComponent(props){
         signOut: () => {
           dispatch({type: 'SIGN_OUT'});
         },
-        getToken: () => {
-          if(state.isLoggedIn)
-            return state.token;
+        getState: () => {
+            return state;
         }
       }), []);
 
