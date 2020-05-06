@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Auth from './auth';
 
 export const AuthContext = React.createContext();
 
@@ -31,10 +32,21 @@ export function AuthComponent(props){
       const authContext = React.useMemo(() => ({
         signIn: (username, password) => {
             console.log('Sign In')
-          if(username && password)
-            dispatch({type: 'SIGN_IN', token: 'dummy'});
-          else
-            dispatch({type: 'SIGN_IN', token: null});
+          if(username && password) {
+            Auth(username, password)
+              .then(res => {
+                if(res)
+                  dispatch({type: 'SIGN_IN', token: res});
+                else
+                  alert('The credentials dont match!');
+              })
+              .catch(err => {
+                console.log("Server is probably down!");
+              });
+           }
+        },
+        skipLogin : () => {
+          dispatch({type: 'SIGN_IN', token:null});
         },
         signOut: () => {
           dispatch({type: 'SIGN_OUT'});
