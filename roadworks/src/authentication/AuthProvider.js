@@ -4,6 +4,8 @@ import Auth from './auth';
 export const AuthContext = React.createContext();
 
 export function AuthComponent(props){
+    console.log('heys');
+
     const [state, dispatch] = React.useReducer((prevState, action) => {
         let cState = {};
         switch(action.type){
@@ -23,11 +25,9 @@ export function AuthComponent(props){
             };
             props.state(cState);
             return state;
-          default:
-            props.state(prevState);
-            return prevState;
+          
         }
-      }, {isLoggedIn: false, token: null})
+      }, {isLoggedIn: false, token: null});
     
       const authContext = React.useMemo(() => ({
         signIn: (username, password) => {
@@ -35,8 +35,10 @@ export function AuthComponent(props){
           if(username && password) {
             Auth(username, password)
               .then(res => {
-                if(res)
+                if(res){
+                  console.info(res);
                   dispatch({type: 'SIGN_IN', token: res});
+                }
                 else
                   alert('The credentials dont match!');
               })
@@ -52,7 +54,10 @@ export function AuthComponent(props){
           dispatch({type: 'SIGN_OUT'});
         },
         getState: () => {
-            return state;
+          return state;
+        },
+        getToken: () => {
+          return state.token;
         }
       }), []);
 

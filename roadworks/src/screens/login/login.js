@@ -4,7 +4,7 @@ import {AuthContext} from '../../authentication/AuthProvider';
 
 
  export default function Login({navigation}) {
-    const { signIn } = React.useContext(AuthContext);
+    const { signIn, skipLogin } = React.useContext(AuthContext);
     const [email, setEmail] = React.useState();
     const [password, setPassword] = React.useState();
 
@@ -21,7 +21,7 @@ import {AuthContext} from '../../authentication/AuthProvider';
             </View>
             <View>
                 <Button title="Login" onPress={() => signIn(email, password)}/>
-                <TouchableOpacity onPress={() => signIn()}>
+                <TouchableOpacity onPress={() => skipLogin()}>
                     <Text style={{textAlign: "center", marginTop: 20, color: '#444'}}>Skip Login</Text>
                 </TouchableOpacity>
             </View>
