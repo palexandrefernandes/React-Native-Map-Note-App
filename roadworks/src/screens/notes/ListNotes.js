@@ -20,13 +20,16 @@ export default function ListNotes(props) {
         });
     };
 
-    NoteDatabase.RealmDB.addListener('change', () => {
-        loadNotes();
-    });
-    
-
     React.useEffect(() => {
         loadNotes();
+        NoteDatabase.RealmDB.addListener('change', () => {
+            loadNotes();
+        });
+        return () => {
+            NoteDatabase.RealmDB.removeListener('change', () => {
+                loadNotes();
+            });
+        }
     }, []);
 
     props.navigation.setOptions({

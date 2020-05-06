@@ -17,7 +17,6 @@ const options = {
 }
 
 export function writeNote(note){
-    console.log('Insert')
     return Realm.open(options)
         .then(realm => {
             const first = realm.objects('Note').sorted('id', true)[0];
@@ -51,8 +50,6 @@ export function readNotes(){
 
 // Might not work
 export function updateNote({id, title, description, urgency}){
-    console.log('Update');
-    console.log(id);
     return Realm.open(options)
         .then(realm => {
             const note = realm.objectForPrimaryKey('Note', id);

@@ -1,15 +1,12 @@
 import * as React from 'react';
-import { Text, BackHandler } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import NoteList from './src/screens/notes/ListNotes';
-import NoteCreator from './src/screens/create_note/NoteCreator';
 import Login from './src/screens/login/Login';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AuthComponent } from './src/authentication/AuthProvider';
+import NotesRoute from './src/routes/NotesRoute';
+import MainRoute from './src/routes/MainRoute';
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator()
 
 function App() {
   const [ state, setState ] = React.useState({})
@@ -21,12 +18,9 @@ function App() {
           {!state.isLoggedIn ? (
             <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
             ) : !state.token ? (
-              <>
-                <Stack.Screen name="NoteList" component={NoteList} />
-                <Stack.Screen name="NoteCreator" component={NoteCreator} />
-              </>
+              <Stack.Screen name="NotesRoute" component={NotesRoute} options={{headerShown: false}}/>
             ) : (
-                <Text>Hey</Text>
+              <Stack.Screen name="MainRoute" component={MainRoute} options={{headerShown: false}}/>
             )}
         </Stack.Navigator>
       </NavigationContainer>
