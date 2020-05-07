@@ -7,6 +7,7 @@ import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import {RNCamera} from 'react-native-camera';
 import {createPoint , getPoints} from '../../rest/requests';
 import { useFocusEffect } from '@react-navigation/native';
+import { accelerometer } from "react-native-sensors";
 
 function requestGeolocaionPermisson() {
     PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
@@ -38,6 +39,9 @@ export default function Map(props){
     const [selectedPointImage, setSelectedPointImage] = React.useState();
 
     let camera;
+    let lastforce;
+    const gravity = 9.81;
+    const threshold = 2;
 
     const createMarker = (title, description, lat, long, picture) =>{
         return (<Marker coordinate={{latitude: lat, longitude: long}} onPress={(event) => {
@@ -80,20 +84,25 @@ export default function Map(props){
     };
 
     const savePoint = () => {
-        AsyncStorage.getItem('token')
-        .then(item => {
-            console.log(item);
-            return createPoint(item, currentLocation.latitude, currentLocation.longitude, title, description, picture.raw)
-        })
-        .then(res => {
-            if(res){
-                setPoints([...points, createMarker(title, description, currentLocation.latitude, currentLocation.longitude, picture.raw)]);
-                setTitle("");
-                setDescription("");
-                setPicture({});
-                setCretePointModal(false);
-            }
-        });
+        if(title !== "" && picture !== ""){
+            AsyncStorage.getItem('token')
+            .then(item => {
+                console.log(item);
+                return createPoint(item, currentLocation.latitude, currentLocation.longitude, title, description, picture.raw)
+            })
+            .then(res => {
+                if(res){
+                    setPoints([...points, createMarker(title, description, currentLocation.latitude, currentLocation.longitude, picture.raw)]);
+                    setTitle("");
+                    setDescription("");
+                    setPicture({});
+                    setCretePointModal(false);
+                }
+            });
+        }
+        else{
+            alert('Fill all the required field to continue!');
+        }
     }
 
     const takePicture = () => {
@@ -113,6 +122,20 @@ export default function Map(props){
         requestGeolocaionPermisson();
         centerMap();
         loadPoints();
+
+        const subscription = accelerometer.subscribe(({ x, y, z}) =>{
+            if(lastforce){
+                const currentForceMag = Math.sqrt(x*x +y*y +z*z) - gravity;
+                if(Math.abs(lastforce - currentForceMag) > threshold){
+                    centerMap();
+                    console.log('beep');
+                }
+                    
+    
+            } else {
+                lastforce = Math.sqrt(x*x +y*y +z*z) - gravity;
+            }
+        });
     }, []));
 
     return (
@@ -149,7 +172,7 @@ export default function Map(props){
                         <TextInput onChangeText={(text) => setTitle(text)} value={title}/>
                         <Text>Description</Text>
                         <TextInput onChangeText={(text) => setDescription(text)} value={description}/>
-                        {picture.uri?(<Image style={styles.picture} source={picture}></Image>) : (<Image style={styles.picture} source={{uri: 'https://www.pngfind.com/pngs/m/169-1696468_camera-clipart-watermark-camera-icon-png-vector-transparent.png'}}></Image>)}
+                        {picture.uri?(<Image style={styles.picture} source={picture}></Image>) : (<Image style={styles.picture} source={{uri: 'https://cdn.dribbble.com/users/2060373/screenshots/5676655/2.jpg'}}></Image>)}
                         <Button title='Take picture' onPress={() => setCameraState(true)}/>
                         <Text></Text>
                         <Button title='Save' onPress={savePoint}/>

@@ -10,14 +10,19 @@ export default function EditPoint(props){
     const [description, setDescription] = React.useState(props.route.params ? props.route.params.description : "");
 
     const editMyPoint = async () => {
-        try {
-            const token = await AsyncStorage.getItem('token');
-            const res = await editPoint(token, id, title, description);
-            props.navigation.navigate('PointList');
-            
-        } 
-        catch(err){
-            console.warn(err);
+        if(title !== "" && description !== ""){
+            try {
+                const token = await AsyncStorage.getItem('token');
+                const res = await editPoint(token, id, title, description);
+                props.navigation.navigate('PointList');
+                
+            } 
+            catch(err){
+                console.warn(err);
+            }
+        }
+        else{
+            alert('Fill all the fields to save!');
         }
     };
 
