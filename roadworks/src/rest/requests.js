@@ -3,13 +3,7 @@ import {token} from '../authentication/AuthProvider';
 
 const ENDPOINT = "http://10.0.2.2:3000/";
 
-export function createPoint(lat, long, title, desc, image){
-    console.log(lat);
-    console.log(long);
-    console.log(title);
-    console.log(desc);
-    console.log(image[50]);
-    console.log(token);
+export function createPoint(token, lat, long, title, desc, image){
     return Axios.post(`${ENDPOINT}issue`, {title: title, description: desc, lat: lat, long: long, imagePath: image}, {headers: {'Authorization': `Bearer ${token}`}})
         .then(res => {
             return true;
@@ -18,5 +12,15 @@ export function createPoint(lat, long, title, desc, image){
             console.error(err.message);
             return false;
         })
+}
 
+export function getPoints(token){
+    return Axios.get(`${ENDPOINT}issues`, {headers: {'Authorization': `Bearer ${token}`}})
+        .then(res => {
+            return res.data.data;
+        })
+        .catch(err => {
+            console.error(err.message);
+            return false;
+        })
 }

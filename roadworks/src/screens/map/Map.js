@@ -1,11 +1,11 @@
 import * as React from 'react';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { View, StyleSheet, PermissionsAndroid, Modal, Text, Button, Image } from 'react-native';
+import MapView, { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
+import { View, StyleSheet, PermissionsAndroid, Modal, Text, Button, Image, AsyncStorage, Dimensions } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import {Icon} from 'react-native-elements';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import {RNCamera} from 'react-native-camera';
-import {createPoint} from '../../rest/requests';
+import {createPoint , getPoints} from '../../rest/requests';
 import {AuthContext} from '../../authentication/AuthProvider';
 
 function requestGeolocaionPermisson() {
@@ -27,16 +27,46 @@ function requestGeolocaionPermisson() {
 }
 
 export default function Map(props){
-    const {getState} = React.useContext(AuthContext);
     const [currentLocation, setCurrentLocation] = React.useState();
     const [title, setTitle] = React.useState("");
     const [description, setDescription] = React.useState("");
     const [picture, setPicture] = React.useState({});
     const [cameraState, setCameraState] = React.useState(false)
     const [showCreatePointModal, setCretePointModal] = React.useState(false);
+    const [points, setPoints] = React.useState([]);
+    const [selectedPoint, setSelectedPoint] = React.useState();
+    const [selectedPointImage, setSelectedPointImage] = React.useState();
+
     let camera;
 
-    console.log(getState());
+    const createMarker = (title, description, lat, long, picture) =>{
+        return (<Marker coordinate={{latitude: lat, longitude: long}} onPress={(event) => {
+            console.log(event.nativeEvent);
+            setCurrentLocation({
+                ...event.nativeEvent.coordinate, 
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421});
+            setSelectedPoint({
+                title: title,
+                description: description,
+                });
+            setSelectedPointImage(`data:image/png;base64,${picture}`);
+            return event.nativeEvent;}}
+            />);
+    };
+
+    const loadPoints = async () => {
+        AsyncStorage.getItem('token')
+        .then(item => {
+            console.log(item);
+            return getPoints(item);
+        })
+        .then(res => {
+            if(res){
+                setPoints(res.map(e => createMarker(e.title, e.description, e.lat, e.long, e.imagePath)));
+            }
+        });
+    }
 
     const centerMap = () => {
         Geolocation.getCurrentPosition(info => {
@@ -50,20 +80,25 @@ export default function Map(props){
     };
 
     const savePoint = () => {
-        createPoint(currentLocation.latitude, currentLocation.longitude, title, description, picture.raw)
-            .then(res => {
-                if(res){
-                    setTitle("");
-                    setDescription("");
-                    setPicture({});
-                    setCretePointModal(false);
-                }
-            });
+        AsyncStorage.getItem('token')
+        .then(item => {
+            console.log(item);
+            return createPoint(item, currentLocation.latitude, currentLocation.longitude, title, description, picture.raw)
+        })
+        .then(res => {
+            if(res){
+                setPoints([...points, createMarker(title, description, currentLocation.latitude, currentLocation.longitude, picture.raw)]);
+                setTitle("");
+                setDescription("");
+                setPicture({});
+                setCretePointModal(false);
+            }
+        });
     }
 
     const takePicture = () => {
         if(camera){
-            camera.takePictureAsync({quality: 0.5, base64:true})
+            camera.takePictureAsync({quality: 0.5, base64:true, width: 200, fixOrientation: true})
                 .then(res => {
                     setPicture({uri:`data:image/png;base64,${res.base64}`, raw: res.base64});
                     setCameraState(false);
@@ -77,6 +112,7 @@ export default function Map(props){
     React.useEffect(() => {
         requestGeolocaionPermisson();
         centerMap();
+        loadPoints();
     }, []);
 
 
@@ -107,17 +143,33 @@ export default function Map(props){
                             onPress={() => {takePicture()}}/>
                     </View>
                 </Modal>
-            <Modal animationType='fade' transparent visible={showCreatePointModal} onRequestClose={()=> {setCretePointModal(false)}}>
+            <Modal animationType='fade' transparent visible={showCreatePointModal} onRequestClose={()=> {setCretePointModal(false); setTitle(""); setDescription(""); setPicture({})}}>
                 <View style={[styles.modelContainer]}>
                     <View style={styles.modelContent}>
                         <Text>Title</Text>
                         <TextInput onChangeText={(text) => setTitle(text)} value={title}/>
                         <Text>Description</Text>
                         <TextInput onChangeText={(text) => setDescription(text)} value={description}/>
-                        {picture.uri?(<Image style={styles.picture} source={picture}></Image>) : (<></>)}
+                        {picture.uri?(<Image style={styles.picture} source={picture}></Image>) : (<Image style={styles.picture} source={{uri: 'https://www.pngfind.com/pngs/m/169-1696468_camera-clipart-watermark-camera-icon-png-vector-transparent.png'}}></Image>)}
                         <Button title='Take picture' onPress={() => setCameraState(true)}/>
                         <Text></Text>
                         <Button title='Save' onPress={savePoint}/>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal transparent={true} visible={selectedPoint !== undefined} onRequestClose={() => setSelectedPoint(undefined)}>
+                <View style={styles.calloutContainer}>
+                    <View style={styles.callout}>
+                        <View style={{flex:1}}>
+                            <Text style={styles.calloutLabel}>Title:</Text>
+                            <Text style={styles.calloutText}>{selectedPoint !== undefined ? selectedPoint.title : ""}</Text>
+                            <Text style={styles.calloutLabel}>Description:</Text>
+                            <Text style={styles.calloutText}>{selectedPoint !== undefined ? selectedPoint.description : ""}</Text>
+                        </View>
+                        <View style={{flex:1}}>
+                            {selectedPoint !== undefined ? (<Image resizeMode='cover' style={{width: "100%", flex: 1}} source={{uri: selectedPointImage} }/>) : (<></>)}
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -144,7 +196,24 @@ export default function Map(props){
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
                 region={currentLocation}
-                />
+                pitchEnabled={false}
+                toolbarEnabled={false}
+                rotateEnabled={false}
+                loadingEnabled
+                showsIndoors={false}
+                showsTraffic={false}
+                showsMyLocationButton={false}
+                showsCompass
+                moveOnMarkerPress={false}
+                showsUserLocation
+                showsPointsOfInterest={false}
+                onLongPress={({nativeEvent}) => {
+                    setCurrentLocation({...currentLocation, ...nativeEvent.coordinate});
+                    setCretePointModal(true);
+                }}
+            >
+                {points}
+            </MapView>
         </View>
     );
 }
@@ -180,7 +249,7 @@ const styles = StyleSheet.create({
         marginVertical: 50,
         borderRadius: 5,
         padding: 20,
-        flex: 1
+        flex: 1,
     },
     preview: {
         zIndex: 30,
@@ -201,5 +270,32 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         marginBottom: 10,
         alignSelf: 'center'
+    },
+    callout: {
+        backgroundColor: "#FFF",
+        width: "100%",
+        height: "25%",
+        minHeight: "25%",
+        position: 'absolute',
+        bottom: 0,
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderTopStartRadius: 5,
+        borderTopEndRadius: 5,
+        flexDirection: 'row'
+    },
+    calloutText: {
+        fontSize: 16
+    },
+    calloutLabel: {
+        fontSize: 20,
+        color: "#4287f5",
+        fontWeight: 'bold',
+    },
+    calloutContainer:{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0,0,0,0.6)"
     }
 });

@@ -1,11 +1,10 @@
 import * as React from 'react';
+import { AsyncStorage } from 'react-native';
 import Auth from './auth';
 
 export const AuthContext = React.createContext();
 
 export function AuthComponent(props){
-    console.log('heys');
-
     const [state, dispatch] = React.useReducer((prevState, action) => {
         let cState = {};
         switch(action.type){
@@ -30,34 +29,28 @@ export function AuthComponent(props){
       }, {isLoggedIn: false, token: null});
     
       const authContext = React.useMemo(() => ({
-        signIn: (username, password) => {
+        signIn: async (username, password) => {
             console.log('Sign In')
           if(username && password) {
-            Auth(username, password)
-              .then(res => {
-                if(res){
-                  console.info(res);
-                  dispatch({type: 'SIGN_IN', token: res});
-                }
-                else
-                  alert('The credentials dont match!');
-              })
-              .catch(err => {
-                console.log("Server is probably down!");
-              });
+            const data = await Auth(username, password);
+            if(data) {
+              await AsyncStorage.setItem('token', data);
+              dispatch({type: 'SIGN_IN', token: data});
+            }
+            else{
+              alert('Credentials do not match!');
+            }
            }
         },
         skipLogin : () => {
           dispatch({type: 'SIGN_IN', token:null});
         },
-        signOut: () => {
+        signOut: async () => {
+          await AsyncStorage.removeItem('token');
           dispatch({type: 'SIGN_OUT'});
         },
-        getState: () => {
-          return state;
-        },
-        getToken: () => {
-          return state.token;
+        getToken: async () => {
+          return await AsyncStorage.getItem('token');
         }
       }), []);
 
