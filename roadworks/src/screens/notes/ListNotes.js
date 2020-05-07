@@ -1,10 +1,14 @@
 import * as React from 'react';
-import { ScrollView, TouchableOpacity, Image, StyleSheet, Text, FlatList } from 'react-native';
+import { TouchableOpacity, Image, StyleSheet, FlatList, BackHandler } from 'react-native';
 import Note from './Note';
 import * as NoteDatabase from '../../database/NoteDatabse';
+import {Icon} from 'react-native-elements';
+import { AuthContext } from '../../authentication/AuthProvider';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ListNotes(props) {
     const [notes, setNotes] = React.useState([]);
+    const { signOut } = React.useContext(AuthContext);
 
     const loadNotes = () => {
         NoteDatabase.readNotes()
@@ -16,25 +20,51 @@ export default function ListNotes(props) {
         });
     };
 
-    NoteDatabase.RealmDB.addListener('change', () => {
-        loadNotes();
-    });
-    
     React.useEffect(() => {
         loadNotes();
+        NoteDatabase.RealmDB.addListener('change', () => {
+            loadNotes();
+        });
+        return () => {
+            NoteDatabase.RealmDB.removeListener('change', () => {
+                loadNotes();
+            });
+        }
     }, []);
 
     props.navigation.setOptions({
         headerRight: () => (
-            <TouchableOpacity style={styles.headerButton} onPress={() => props.navigation.navigate('Note Creator')}>
-                <Image></Image>
-                <Text>Press Here</Text>
+            <TouchableOpacity style={styles.headerButton} onPress={() => props.navigation.navigate('NoteCreator')}>
+                <Icon
+                    type="material"
+                    name="add"
+                    size={24}
+                />
             </TouchableOpacity>
         )
     });
 
+    useFocusEffect(React.useCallback(() => {
+        const exit = () => {
+            signOut();
+            return true;
+        };
+
+        BackHandler.addEventListener('hardwareBackPress', exit);
+        return () => BackHandler.removeEventListener('hardwareBackPress', exit);
+    }, []))
+
     return (
-        <FlatList data={notes} renderItem={({item}) => <Note editNote={() => props.navigation.navigate('Note Creator', {id: item.id, title: item.title, description: item.description, urgency: item.urgency})}  title={item.title} description={item.description} urgency={item.urgency}/>} keyExtractor={item => item.id.toString()}/>
+        <FlatList data={notes} renderItem={({item}) => 
+            <Note 
+                deleteNote={() => NoteDatabase.deleteNote(item.id)}
+                editNote={() => props.navigation.navigate('NoteCreator', {index: item.id, title: item.title, description: item.description, urgency: item.urgency})}  
+                title={item.title} 
+                description={item.description} 
+                urgency={item.urgency}
+            />} 
+            keyExtractor={item => item.id.toString()}
+        />
     );
 }
 

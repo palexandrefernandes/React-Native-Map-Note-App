@@ -19,7 +19,8 @@ const options = {
 export function writeNote(note){
     return Realm.open(options)
         .then(realm => {
-            const id = realm.objects('Note').sorted('id', true)[0].id + 1 ?? 1;
+            const first = realm.objects('Note').sorted('id', true)[0];
+            const id = first ?  first.id + 1 : 1;
             note.id = id;
             note.date = note.date ?? new Date();
             realm.write(() => {
@@ -48,7 +49,7 @@ export function readNotes(){
 }
 
 // Might not work
-export function updateNote(id, title, description, urgency){
+export function updateNote({id, title, description, urgency}){
     return Realm.open(options)
         .then(realm => {
             const note = realm.objectForPrimaryKey('Note', id);
@@ -58,6 +59,18 @@ export function updateNote(id, title, description, urgency){
                 note.urgency = urgency;
                 note.date = new Date();
             });
+        });
+}
+
+export function deleteNote(id){
+    return Realm.open(options)
+        .then(realm => {
+            const note = realm.objectForPrimaryKey('Note', id);
+            realm.beginTransaction();
+            realm.delete(note);
+            realm.commitTransaction();
+        })
+        .catch(err => {
         });
 }
 

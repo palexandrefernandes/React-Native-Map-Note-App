@@ -1,28 +1,31 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import NoteList from './src/screens/notes/ListNotes';
-import NoteCreator from './src/screens/create_note/NoteCreator';
+import Login from './src/screens/login/Login';
+import { AuthComponent } from './src/authentication/AuthProvider';
+import NotesRoute from './src/routes/NotesRoute';
+import MainRoute from './src/routes/MainRoute';
 
-function HomeScreen() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
-    </View>
-  );
-}
-
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
 function App() {
+  const [ state, setState ] = React.useState({})
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Note Creator" component={NoteCreator} />
-        <Stack.Screen name="Home" component={NoteList} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthComponent state={setState}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          {!state.isLoggedIn ? (
+            <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
+            ) : !state.token ? (
+              <Stack.Screen name="NotesRoute" component={NotesRoute} options={{headerShown: false}}/>
+            ) : (
+              <Stack.Screen name="MainRoute" component={MainRoute} options={{headerShown: false}}/>
+            )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthComponent>
+    
   );
 }
 
