@@ -6,7 +6,7 @@ import {Icon} from 'react-native-elements';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import {RNCamera} from 'react-native-camera';
 import {createPoint , getPoints} from '../../rest/requests';
-import {AuthContext} from '../../authentication/AuthProvider';
+import { useFocusEffect } from '@react-navigation/native';
 
 function requestGeolocaionPermisson() {
     PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
@@ -107,14 +107,13 @@ export default function Map(props){
                     console.warn(err);
                 })
         }
-    }
+    };
 
-    React.useEffect(() => {
+    useFocusEffect(React.useCallback(() => {
         requestGeolocaionPermisson();
         centerMap();
         loadPoints();
-    }, []);
-
+    }, []));
 
     return (
         <View style={styles.container}>

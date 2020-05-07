@@ -24,3 +24,37 @@ export function getPoints(token){
             return false;
         })
 }
+
+export function getMyPoints(token){
+    return Axios.get(`${ENDPOINT}user/issues`, {headers: {'Authorization': `Bearer ${token}`}})
+        .then(res => {
+            return res.data.data;
+        })
+        .catch(err => {
+            console.error(err.message);
+            return false;
+        })
+}
+
+export function deletePoint(token, id){
+    return Axios.delete(`${ENDPOINT}issue/${id}`, {headers: {'Authorization': `Bearer ${token}`}})
+        .then(res => {
+            return res;
+        })
+        .catch(err => {
+            console.error(err.message);
+            return false;
+        })
+}
+
+export function editPoint(token, id, title, description){
+    console.log(token);
+    return Axios.put(`${ENDPOINT}issue/${id}`, {title: title, description:description} ,{headers: {'Authorization': `Bearer ${token}`}})
+        .then(res => {
+            return res;
+        })
+        .catch(err => {
+            console.error(err.message);
+            return false;
+        })
+}
