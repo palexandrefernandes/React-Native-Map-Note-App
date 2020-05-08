@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {YellowBox} from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from './src/screens/login/Login';
@@ -10,6 +11,7 @@ import {TranslationProvider} from './src/translation/TranslationProvider';
 const Stack = createStackNavigator()
 
 function App() {
+  console.disableYellowBox = true;
   const [ state, setState ] = React.useState({})
 
   return (

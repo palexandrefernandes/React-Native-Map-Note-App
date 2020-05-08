@@ -62,7 +62,7 @@ export default function ListNotes(props) {
                                 onPress={()=>{props.navigation.navigate('EditPoint', item);}}
                                 />
                     </View>
-                    <Text>{item.description}</Text>
+                    <Text style={{marginBottom:10}}>{item.description}</Text>
                 </View>
             } 
             keyExtractor={item => item.issueId.toString()}
@@ -72,20 +72,28 @@ export default function ListNotes(props) {
 
 const styles = StyleSheet.create({
     card: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        marginHorizontal: 10,
-        paddingBottom: 20,
+        flex: 1,
+        marginHorizontal: 15,
         marginVertical: 5,
-        borderRadius: 10,
-        borderColor: '#EEE',
-        backgroundColor: "#FFF"
+        backgroundColor: '#FFF',
+        padding: 10,
+        paddingHorizontal: 20,
+        borderRadius: 2,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 6.27,
+        elevation: 10
     },
     header: {
-        flex:1,
         flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
+        borderBottomColor: '#EEE',
+        borderBottomWidth: 1,
+        paddingVertical: 5,
         marginBottom: 10
     }
 });
