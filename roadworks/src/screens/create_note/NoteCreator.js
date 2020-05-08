@@ -4,13 +4,31 @@ import Crumb from './Crumb';
 import CrumbSelector from './CrumbSelector'
 import { writeNote, updateNote } from '../../database/NoteDatabse';
 import { Icon } from 'react-native-elements';
+import {LanguageContext} from '../../translation/TranslationProvider';
+import {useFocusEffect} from '@react-navigation/native'
 
 
 export default function NoteCreator(props){
+    const language = React.useContext(LanguageContext);
     const [id, setId] = React.useState(props.route.params ? props.route.params.index : undefined);
     const [title, setTitle] = React.useState(props.route.params ? props.route.params.title : "");
     const [description, setDescription] = React.useState(props.route.params ? props.route.params.description : "");
     const [level, setLevelChange] = React.useState(props.route.params ? props.route.params.urgency : undefined);
+
+    useFocusEffect(() => {
+        props.navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity style={style.headerButton} onPress={saveNote}>
+                    <Icon
+                        type="material"
+                        name="save"
+                        size={24}
+                    />
+                </TouchableOpacity>
+            ),
+            title: props.route.params ? language.editNote: language.createNote
+        });
+    });
 
     let option = props.route.params === undefined ? writeNote : updateNote;
 
@@ -32,40 +50,22 @@ export default function NoteCreator(props){
                 });
         }
         else {
-            alert('Please fill all the fields before submission');
+            alert(language.fillFields);
         }
     };
-
-    const deleteNote = () => {
-
-    }
-    ;
-
-    props.navigation.setOptions({
-        headerRight: () => (
-            <TouchableOpacity style={style.headerButton} onPress={saveNote}>
-                <Icon
-                    type="material"
-                    name="save"
-                    size={24}
-                />
-            </TouchableOpacity>
-        )
-    });
-
 
 
     return (
         <ScrollView style={style.container}>
-            <Text>Title</Text>
+            <Text>{language.title}</Text>
             <TextInput underlineColorAndroid="#00F" style={style.textField} onChangeText={(text) => setTitle(text)} value={title}></TextInput>
-            <Text>Description</Text>
+            <Text>{language.description}</Text>
             <TextInput underlineColorAndroid="#00F" style={style.textField} onChangeText={text => setDescription(text)} value={description} numberOfLines={5} multiline={true}></TextInput>
-            <Text style={{marginBottom: 20}}>Urgency</Text>
+    <Text style={{marginBottom: 20}}>{language.urgency}</Text>
             <CrumbSelector onSelect={(id) => setLevelChange(id)} defaultIndex={level}>
-                <Crumb color="#0060de">Low</Crumb>
-                <Crumb color="#faac1b">Medium</Crumb>
-                <Crumb color="#c90a1a">High</Crumb>
+                <Crumb color="#0060de">{language.normal}</Crumb>
+                <Crumb color="#faac1b">{language.atention}</Crumb>
+                <Crumb color="#c90a1a">{language.urgent}</Crumb>
             </CrumbSelector>
         </ScrollView>
     );

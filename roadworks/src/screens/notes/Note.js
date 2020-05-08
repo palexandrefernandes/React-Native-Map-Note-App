@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Icon } from 'react-native-elements';
+import {LanguageContext} from '../../translation/TranslationProvider';
 
 export default function Note(props) {
+    const language = React.useContext(LanguageContext);
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -33,12 +35,13 @@ export default function Note(props) {
 }
 
 function Tagline(props){
+    const language = React.useContext(LanguageContext);
     let color;
     let message;
     switch(props.state){
-        case 2: message= "Urgent"; color = Colors.DANGER; break;
-        case 1: message= "Atention"; color = Colors.WARNING; break;
-        default: message= "Normal"; color = Colors.NORMAL; break;
+        case 2: message= language.urgent; color = Colors.DANGER; break;
+        case 1: message= language.atention; color = Colors.WARNING; break;
+        default: message= language.normal; color = Colors.NORMAL; break;
     }
 
     return (

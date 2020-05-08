@@ -2,9 +2,11 @@ import * as React from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet, Text, TextInput, AsyncStorage } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { editPoint } from '../../rest/requests';
+import {LanguageContext} from '../../translation/TranslationProvider'
 
 
 export default function EditPoint(props){
+    const language = React.useContext(LanguageContext);
     const [id, setId] = React.useState(props.route.params ? props.route.params.issueId : undefined);
     const [title, setTitle] = React.useState(props.route.params ? props.route.params.title : "");
     const [description, setDescription] = React.useState(props.route.params ? props.route.params.description : "");
@@ -22,7 +24,7 @@ export default function EditPoint(props){
             }
         }
         else{
-            alert('Fill all the fields to save!');
+            alert(language.fillFields);
         }
     };
 
@@ -43,9 +45,9 @@ export default function EditPoint(props){
 
     return (
         <ScrollView style={style.container}>
-            <Text>Title</Text>
+            <Text>{language.title}</Text>
             <TextInput underlineColorAndroid="#00F" style={style.textField} onChangeText={(text) => setTitle(text)} value={title}></TextInput>
-            <Text>Description</Text>
+            <Text>{language.description}</Text>
             <TextInput underlineColorAndroid="#00F" style={style.textField} onChangeText={text => setDescription(text)} value={description} numberOfLines={5} multiline={true}></TextInput>
         </ScrollView>
     );

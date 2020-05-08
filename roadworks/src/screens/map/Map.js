@@ -8,6 +8,7 @@ import {RNCamera} from 'react-native-camera';
 import {createPoint , getPoints} from '../../rest/requests';
 import { useFocusEffect } from '@react-navigation/native';
 import { accelerometer } from "react-native-sensors";
+import {LanguageContext} from '../../translation/TranslationProvider';
 
 function requestGeolocaionPermisson() {
     PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
@@ -28,6 +29,7 @@ function requestGeolocaionPermisson() {
 }
 
 export default function Map(props){
+    const language = React.useContext(LanguageContext);
     const [currentLocation, setCurrentLocation] = React.useState();
     const [title, setTitle] = React.useState("");
     const [description, setDescription] = React.useState("");
@@ -101,7 +103,7 @@ export default function Map(props){
             });
         }
         else{
-            alert('Fill all the required field to continue!');
+            alert(language.fillFields);
         }
     }
 
@@ -128,7 +130,6 @@ export default function Map(props){
                 const currentForceMag = Math.sqrt(x*x +y*y +z*z) - gravity;
                 if(Math.abs(lastforce - currentForceMag) > threshold){
                     centerMap();
-                    console.log('beep');
                 }
                     
     
@@ -168,14 +169,14 @@ export default function Map(props){
             <Modal animationType='fade' transparent visible={showCreatePointModal} onRequestClose={()=> {setCretePointModal(false); setTitle(""); setDescription(""); setPicture({})}}>
                 <View style={[styles.modelContainer]}>
                     <View style={styles.modelContent}>
-                        <Text>Title</Text>
+                        <Text>{language.title}</Text>
                         <TextInput onChangeText={(text) => setTitle(text)} value={title}/>
-                        <Text>Description</Text>
+                        <Text>{language.description}</Text>
                         <TextInput onChangeText={(text) => setDescription(text)} value={description}/>
                         {picture.uri?(<Image style={styles.picture} source={picture}></Image>) : (<Image style={styles.picture} source={{uri: 'https://cdn.dribbble.com/users/2060373/screenshots/5676655/2.jpg'}}></Image>)}
-                        <Button title='Take picture' onPress={() => setCameraState(true)}/>
+                        <Button title={language.takePicture} onPress={() => setCameraState(true)}/>
                         <Text></Text>
-                        <Button title='Save' onPress={savePoint}/>
+                        <Button title={language.save} onPress={savePoint}/>
                     </View>
                 </View>
             </Modal>
@@ -184,9 +185,9 @@ export default function Map(props){
                 <View style={styles.calloutContainer}>
                     <View style={styles.callout}>
                         <View style={{flex:1}}>
-                            <Text style={styles.calloutLabel}>Title:</Text>
+                            <Text style={styles.calloutLabel}>{language.title}</Text>
                             <Text style={styles.calloutText}>{selectedPoint !== undefined ? selectedPoint.title : ""}</Text>
-                            <Text style={styles.calloutLabel}>Description:</Text>
+                            <Text style={styles.calloutLabel}>{language.description}</Text>
                             <Text style={styles.calloutText}>{selectedPoint !== undefined ? selectedPoint.description : ""}</Text>
                         </View>
                         <View style={{flex:1}}>

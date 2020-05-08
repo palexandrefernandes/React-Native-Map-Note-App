@@ -4,8 +4,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { getMyPoints, deletePoint } from '../../rest/requests';
 import { set } from 'react-native-reanimated';
+import {LanguageContext} from '../../translation/TranslationProvider'
 
 export default function ListNotes(props) {
+    const language = React.useContext(LanguageContext);
     const [points, setPoints] = React.useState([]);
 
     const deleteMyPoint = async (id) => {
